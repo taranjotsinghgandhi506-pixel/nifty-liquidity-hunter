@@ -52,3 +52,24 @@ npm run server
 - Spot-index levels are reference levels. They are not option-premium entry/SL/targets. Real option premium analytics require a separate options-chain/contract selection and historical premium data feed.
 - Backtests must model timestamp alignment, option contract selection, bid/ask spread, slippage, brokerage, STT, GST, exchange charges and rejected/missing data.
 - The current demo signal engine is deterministic and intended for engineering validation, not evidence of profitability.
+
+## FYERS login connection (signal-only)
+
+This build adds the server-side FYERS individual-app OAuth login flow:
+- Start login at `https://YOUR-RENDER-SERVICE.onrender.com/api/fyers/login`.
+- The callback is handled at the exact redirect URL registered in FYERS.
+- The server verifies the random `state`, exchanges `auth_code` for an access token, and keeps the token in server memory only.
+- Check status at `/api/fyers/status`.
+- Order placement is not implemented or enabled.
+
+Set these in Render → service → Environment:
+- `FYERS_APP_ID` = App ID from FYERS API Dashboard
+- `FYERS_SECRET_ID` = Secret ID from FYERS API Dashboard
+- `FYERS_REDIRECT_URI` = exact Redirect URL registered in FYERS. The app was created with `https://nifty-liquidity-hunter.onrender.com`; preserve that exact value unless changed in both places.
+
+Never put the FYERS Secret ID or access token in frontend code or GitHub. Render restarts clear the in-memory access token and require a fresh login. This is only the authentication foundation: live quotes, historical candle preload, WebSocket streaming and live strategy signals are not connected yet. The dashboard remains DEMO until those are implemented and tested. FYERS access tokens expire daily at 6:30 AM.
+
+Official docs:
+- https://fyers.in/api-docs/v3/api/authentication/individual-app/authentication-flow/
+- https://fyers.in/api-docs/v3/api/authentication/individual-app/generate-auth-code/
+- https://fyers.in/api-docs/v3/api/authentication/individual-app/validate-auth-code/
