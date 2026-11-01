@@ -1,0 +1,3 @@
+// Deterministic synthetic candles for UI development only. Never use as market data.
+function makeBars(count,minutes,seed=25000){const out=[];let p=seed;const now=Math.floor(Date.now()/60000);for(let i=count-1;i>=0;i--){const t=now-i*minutes;const drift=Math.sin(i/17)*1.1+(i%37===0?((i%2)?-8:8):0);const o=p,c=o+drift+(Math.sin(i/4)*0.8),h=Math.max(o,c)+0.8+(i%5)*0.12,l=Math.min(o,c)-0.7-(i%7)*0.1;out.push({time:t*60,open:+o.toFixed(2),high:+h.toFixed(2),low:+l.toFixed(2),close:+c.toFixed(2)});p=c;}return out;}
+export function buildDemoSnapshot(){return {candles1:makeBars(240,1),candles5:makeBars(120,5),mode:'demo',connected:false,marketStatus:'SIMULATED'};}
