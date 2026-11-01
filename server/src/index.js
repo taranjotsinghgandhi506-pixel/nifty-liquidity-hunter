@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { buildDemoSnapshot } from './market/demoFeed.js';
 import { buildSignals } from './strategy/liquidityEngine.js';
 import { createAngelOneAdapter } from './broker/angelOneAdapter.js';
+import { fyersDataSocket } from 'fyers-api-v3';
 
 dotenv.config();
 const app = express();
