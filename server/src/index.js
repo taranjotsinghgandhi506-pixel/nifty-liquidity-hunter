@@ -32,7 +32,7 @@ function safeEqual(a, b) {
 
 // FYERS redirects to the exact URL registered in the app (currently the site root).
 // Handle the callback before static hosting so auth_code stays server-side.
-app.get('/', async (req, res, next) => {
+app.get('/api/fyers/callback', async (req, res, next) => {
   const { auth_code, state, s } = req.query;
   if (!auth_code && !state && !s && !req.query.error) return next();
   if (s === 'error' || req.query.error) {
