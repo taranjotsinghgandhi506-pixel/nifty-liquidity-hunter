@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { buildDemoSnapshot } from './market/demoFeed.js';
 import { buildSignals } from './strategy/liquidityEngine.js';
-import { createFyersMarketData } from './market/fyersmarketdata.js';
+import { createFyersMarketData } from './market/fyersMarketData.js';
 
 dotenv.config();
 const app = express();
