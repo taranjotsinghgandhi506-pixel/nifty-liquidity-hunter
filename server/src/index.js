@@ -84,7 +84,7 @@ fyersMarketData = createFyersMarketData({
   }
 });
 
-fyersmarketdata.start();
+fyersMarketData.start();
     res.send('<main style="font-family:system-ui;max-width:620px;margin:12vh auto;padding:24px"><h2>FYERS connected successfully</h2><p>Your access token is stored on the server only. Close this tab and return to Nifty Liquidity Hunter.</p><p>Order placement remains disabled.</p></main>');
   } catch (err) {
     console.error('FYERS callback error:', err.message);
