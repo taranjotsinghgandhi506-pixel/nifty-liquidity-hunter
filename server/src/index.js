@@ -6,8 +6,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { buildDemoSnapshot } from './market/demoFeed.js';
 import { buildSignals } from './strategy/liquidityEngine.js';
-import { createAngelOneAdapter } from './broker/angelOneAdapter.js';
-import { fyersDataSocket } from 'fyers-api-v3';
+import { createFyersMarketData } from './market/fyersMarketData.js';
 
 dotenv.config();
 const app = express();
@@ -20,6 +19,8 @@ let fyersAccessToken = null;
 let fyersTokenCreatedAt = null;
 let pendingFyersState = null;
 let pendingFyersStateAt = 0;
+let fyersMarketData = null;
+let latestFyersTick = null;
 const FYERS_AUTH_BASE = 'https://api-t1.fyers.in/api/v3';
 
 function fyersConfigReady() {
@@ -65,6 +66,25 @@ app.get('/api/fyers/callback', async (req, res, next) => {
     // Token remains server-side only. Render restarts clear it; login can be repeated.
     fyersAccessToken = payload.access_token;
     fyersTokenCreatedAt = new Date().toISOString();
+    if (fyersMarketData) {
+  try {
+    fyersMarketData.close?.();
+  } catch {}
+}
+
+fyersMarketData = createFyersMarketData({
+  appId: process.env.FYERS_APP_ID,
+  getAccessToken: () => fyersAccessToken,
+  onTick: (tick) => {
+    latestFyersTick = tick;
+    console.log('FYERS NIFTY LIVE:', tick.ltp);
+  },
+  onStatus: (status) => {
+    console.log('FYERS SOCKET STATUS:', status);
+  }
+});
+
+fyersMarketData.start();
     res.send('<main style="font-family:system-ui;max-width:620px;margin:12vh auto;padding:24px"><h2>FYERS connected successfully</h2><p>Your access token is stored on the server only. Close this tab and return to Nifty Liquidity Hunter.</p><p>Order placement remains disabled.</p></main>');
   } catch (err) {
     console.error('FYERS callback error:', err.message);
