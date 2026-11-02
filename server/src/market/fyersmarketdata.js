@@ -1,7 +1,7 @@
-
-import fyersApi from 'fyers-api-v3';
-
+import { createRequire } from 'node:module';
 const NIFTY_SYMBOL = 'NSE:NIFTY50-INDEX';
+const require = createRequire(import.meta.url);
+const { fyersDataSocket } = require('fyers-api-v3');
 
 export function createFyersMarketData({
   appId,
@@ -22,7 +22,7 @@ export function createFyersMarketData({
       return;
     }
 
-    const DataSocket = fyersApi.fyersDataSocket;
+   const DataSocket = fyersDataSocket;
 
     if (!DataSocket) {
       onStatus({ connected: false, error: 'FYERS DataSocket unavailable' });
@@ -55,7 +55,7 @@ export function createFyersMarketData({
       onStatus({ connected: false, message: 'Socket closed' });
     });
 
-    socket.autoreconnect(10);
+   socket.autoReconnect(10);
     socket.connect();
     started = true;
   }
