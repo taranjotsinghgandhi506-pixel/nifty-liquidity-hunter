@@ -29,23 +29,30 @@ export function createFyersMarketData({
       return;
     }
 
-    socket = DataSocket.getInstance(`${appId}:${token}`, '');
+ socket = DataSocket.getInstance(`${appId}:${token}`, '', true);
 
     socket.on('connect', () => {
       onStatus({ connected: true, message: 'Socket connected' });
-      socket.subscribe([NIFTY_SYMBOL], false);
+      socket.subscribe([NIFTY_SYMBOL]);
     });
 
-    socket.on('message', (message) => {
-      if (message?.symbol === NIFTY_SYMBOL && Number.isFinite(Number(message.ltp))) {
-        onTick({
-          symbol: NIFTY_SYMBOL,
-          ltp: Number(message.ltp),
-          timestamp: message.exch_feed_time || message.last_traded_time || Date.now() / 1000,
-          raw: message
-        });
-      }
+socket.on('message', (message) => {
+  if (
+    message?.type === 'if' &&
+    message?.symbol === NIFTY_SYMBOL &&
+    Number.isFinite(Number(message.ltp))
+  ) {
+    onTick({
+      symbol: NIFTY_SYMBOL,
+      ltp: Number(message.ltp),
+      timestamp:
+        message.exch_feed_time ||
+        message.last_traded_time ||
+        Date.now() / 1000,
+      raw: message
     });
+  }
+});
 
     socket.on('error', (error) => {
       onStatus({ connected: false, error: String(error) });
@@ -55,10 +62,18 @@ export function createFyersMarketData({
       onStatus({ connected: false, message: 'Socket closed' });
     });
 
-   socket.autoReconnect(10);
+socket.autoreconnect(10);
     socket.connect();
     started = true;
   }
-
-  return { start };
+return {
+  start,
+  close: () => {
+    if (socket) {
+      socket.close();
+      socket = null;
+      started = false;
+    }
+  }
+};
 }
